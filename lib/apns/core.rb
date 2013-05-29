@@ -1,5 +1,5 @@
 # Copyright (c) 2009 James Pozdena, 2010 Justin.tv
-#  
+#
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
 # files (the "Software"), to deal in the Software without
@@ -8,10 +8,10 @@
 # copies of the Software, and to permit persons to whom the
 # Software is furnished to do so, subject to the following
 # conditions:
-#  
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
-#  
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 # OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -20,7 +20,7 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
- 
+
 module APNS
   require 'socket'
   require 'openssl'
@@ -70,7 +70,7 @@ module APNS
       conn.flush
     end
   end
-  
+
   def self.send_notifications(notifications)
     self.with_notification_connection do |conn|
       notifications.each do |n|
@@ -79,7 +79,7 @@ module APNS
       conn.flush
     end
   end
-  
+
   def self.feedback
     apns_feedback = []
     self.with_feedback_connection do |conn|
@@ -89,7 +89,7 @@ module APNS
         apns_feedback << self.parse_feedback_tuple(data)
       end
     end
-    
+
     return apns_feedback
   end
 
@@ -114,11 +114,11 @@ module APNS
     pm = self.packaged_message(message)
     [0, 0, 32, pt, 0, pm.bytes.to_a.size, pm].pack("ccca*cca*")
   end
-  
+
   def self.packaged_token(device_token)
     [device_token.gsub(/[\s|<|>]/,'')].pack('H*')
   end
-  
+
   def self.packaged_message(message)
     if message.is_a?(Hash)
       message.to_json
@@ -128,7 +128,7 @@ module APNS
       raise "Message needs to be either a hash or string"
     end
   end
-  
+
   def self.with_notification_connection(&block)
     self.with_connection(self.host, self.port, &block)
   end
@@ -143,13 +143,13 @@ module APNS
   ensure
     @cache_connections = cache_temp
   end
- 
+
   private
 
   def self.open_connection(host, port)
     raise "The path to your pem file is not set. (APNS.pem = /path/to/cert.pem)" unless self.pem
     raise "The path to your pem file does not exist!" unless File.exist?(self.pem)
-    
+
     context      = OpenSSL::SSL::SSLContext.new
     context.cert = OpenSSL::X509::Certificate.new(File.read(self.pem))
     context.key  = OpenSSL::PKey::RSA.new(File.read(self.pem), self.pass)
